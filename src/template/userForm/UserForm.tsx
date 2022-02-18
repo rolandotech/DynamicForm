@@ -1,4 +1,6 @@
 import React, {useEffect, useState} from 'react'
+import {getUserData} from '../../features/redux/userForm'
+import {useDispatch, useSelector} from 'react-redux'
 import Axios from 'axios'
 import { 
 FormControl,
@@ -12,11 +14,12 @@ Button,
 MenuItem,
 Select
 } from '@mui/material';
+import { RootState } from '../../app/store';
 
 const UserForm = () => {
     const [form, setForm] = useState<any>({})
-    const [formData, setFormData] = useState<any>({})
-    const [gender, setGender] = useState('male')
+    const dispatch = useDispatch()
+    const data = useSelector((auth: {user: any}) => auth.user)
 
     useEffect(() => {
         Axios.get('https://vb-react-exam.netlify.app/api/form')
@@ -24,9 +27,14 @@ const UserForm = () => {
             const reqData = resp.data.data
             console.log(reqData)
             if(reqData != null){
-                setForm(reqData)  
+                dispatch(
+                    getUserData(reqData)
+                )
+                setForm(reqData)
+                
             }
         })
+        console.log(data)
     }, [])
 
     const formSubmit = (e: any) => {
@@ -35,30 +43,27 @@ const UserForm = () => {
         const data: any = {}
         for(var pair of form_data.entries()) {
             data[pair[0]] = pair[1]
-         }
-         console.log(form)
+        }
+        console.log(form)
         
-        Axios.post('https://vb-react-exam.netlify.app/api/form',data)
-        .then((resp) => {
-            const reqData = resp.data.data
-            console.log(reqData)
-            if(reqData != null){
-                setFormData(reqData)  
-            }
-        })
-        .catch((err) => {
-            console.log(err)
-        })
+        // Axios.post('https://vb-react-exam.netlify.app/api/form',data)
+        // .then((resp) => {
+        //     const reqData = resp.data.data
+        //     console.log(reqData)
+        //     if(reqData != null){
+        //         setFormData(reqData)  
+        //     }
+        // })
+        // .catch((err) => {
+        //     console.log(err)
+        // })
     }
 
     const handleChange = (e: any, key: number) => {
         let new_form = form
         let FData = new_form[key]
         FData['value'] = e.target.value
-        setForm({
-            ...form,
-            FData
-        })
+        setForm(FData)
     }
 
     const formInputs = () => {
